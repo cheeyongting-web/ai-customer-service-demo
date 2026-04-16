@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI客服售后场景测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        'primary-dark': '#0E4AD6',
+                        'primary-light': '#E8F0FF',
+                        'bg-light': '#F5F7FA',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes progress-fill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .message-fade-in {
+            animation: fadeInUp 0.3s ease-out forwards;
+        }
+        
+        .progress-bar {
+            animation: progress-fill var(--delay-time, 3s) linear forwards;
+        }
+        
+        .shimmer-bg {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .pulse-dot {
+            animation: pulse-dot 1.2s ease-in-out infinite;
+        }
+        
+        .pulse-dot:nth-child(2) { animation-delay: 0.2s; }
+        .pulse-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 2px;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans flex items-center justify-center p-4">
+    <!-- ==================== 变量配置区域（可手动修改） ==================== -->
+    <script>
+        // 响应延迟时间（毫秒）
+        const DELAY_TIME_MS = 3000;
+        
+        // AI思考时的提示文案
+        const LOADING_TEXT = "正在查阅售后政策与历史记录...";
+        
+        // 5个专业提示词模板，随机轮播
+        const thinkingTemplates = [
+            {
+                steps: ["正在分析您的售后申请...", "正在查阅售后政策与历史记录...", "正在评估处理方案..."]
+            },
+            {
+                steps: ["正在连接售后服务系统...", "正在调取订单详情与交易记录...", "正在核对退换货条件..."]
+            },
+            {
+                steps: ["正在识别您的服务需求...", "正在查询平台售后规则...", "正在生成处理建议..."]
+            },
+            {
+                steps: ["正在接入智能售后引擎...", "正在分析商品状态与物流信息...", "正在计算最优解决方案..."]
+            },
+            {
+                steps: ["正在启动售后诊断程序...", "正在比对用户权益与商家政策...", "正在确认最终处理结果..."]
+            }
+        ];
+        
+        // 随机选择一个模板
+        const selectedTemplate = thinkingTemplates[Math.floor(Math.random() * thinkingTemplates.length)];
+    </script>
+    
+    <!-- 主聊天窗口 -->
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="height: 85vh; max-height: 700px;">
+        <!-- 顶部标题栏 -->
+        <header class="bg-primary px-4 py-3 flex items-center space-x-3 flex-shrink-0">
+            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-white font-semibold text-base">AI售后客服中心</h1>
+                <p class="text-white/70 text-xs">智能售后服务</p>
+            </div>
+            <div class="ml-auto flex items-center space-x-1">
+                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                <span class="text-white/80 text-xs">在线</span>
+            </div>
+        </header>
+        
+        <!-- 聊天区域 -->
+        <div class="flex-1 overflow-y-auto scrollbar-custom p-4 space-y-4" id="chat-container">
+            <!-- 初始消息将由JS自动添加 -->
+        </div>
+        
+        <!-- 按钮交互区域 -->
+        <div class="px-4 py-3 bg-gray-50 border-t border-gray-100" id="button-area">
+            <!-- 按钮将由JS动态生成 -->
+        </div>
+        
+        <!-- 结束实验按钮（初始隐藏） -->
+        <div class="p-4 bg-white border-t border-gray-200 hidden" id="end-area">
+            <button id="end-btn" class="w-full bg-gradient-to-r from-primary to-primary-dark text-white py-3 rounded-xl font-medium text-sm hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>结束对话并填写问卷</span>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // DOM 元素
+        const chatContainer = document.getElementById('chat-container');
+        const buttonArea = document.getElementById('button-area');
+        const endArea = document.getElementById('end-area');
+        const endBtn = document.getElementById('end-btn');
+        
+        // 状态变量
+        let currentStep = 0;
+        let isProcessing = false;
+        
+        // 添加AI消息
+        function addAIMessage(text) {
+            const messageHtml = `
+                <div class="flex items-start space-x-2 message-fade-in">
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="bg-gray-100 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[90%]">
+                            <p class="text-gray-800 text-sm leading-relaxed">${text}</p>
+                        </div>
+                        <span class="text-gray-400 text-xs mt-1 block">刚刚</span>
+                    </div>
+                </div>
+            `;
+            chatContainer.insertAdjacentHTML('beforeend', messageHtml);
+            scrollToBottom();
+        }
+        
+        // 添加用户消息
+        function addUserMessage(text) {
+            const messageHtml = `
+                <div class="flex items-start space-x-2 message-fade-in justify-end">
+                    <div class="flex-1 flex flex-col items-end">
+                        <div class="bg-primary text-white rounded-2xl rounded-tr-md px-4 py-2.5 max-w-[90%]">
+                            <p class="text-sm leading-relaxed">${text}</p>
+                        </div>
+                        <span class="text-gray-400 text-xs mt-1 block">刚刚</span>
+                    </div>
+                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                </div>
+            `;
+            chatContainer.insertAdjacentHTML('beforeend', messageHtml);
+            scrollToBottom();
+        }
+        
+        // 添加Loading消息（带进度条和随机提示词）
+        function addLoadingMessage() {
+            const loadingHtml = `
+                <div class="flex items-start space-x-2" id="loading-indicator">
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="bg-gray-100 rounded-2xl rounded-tl-md px-4 py-3 max-w-[90%]">
+                            <!-- 进度条 -->
+                            <div class="w-full bg-gray-300 rounded-full h-1.5 mb-3 overflow-hidden">
+                                <div class="bg-primary h-1.5 rounded-full progress-bar relative" style="--delay-time: ${DELAY_TIME_MS}ms;">
+                                    <div class="absolute inset-0 shimmer-bg"></div>
+                                </div>
+                            </div>
+                            <!-- 文字和动画 -->
+                            <div class="flex items-center space-x-2">
+                                <div class="flex space-x-1">
+                                    <span class="w-1.5 h-1.5 bg-primary rounded-full pulse-dot"></span>
+                                    <span class="w-1.5 h-1.5 bg-primary rounded-full pulse-dot"></span>
+                                    <span class="w-1.5 h-1.5 bg-primary rounded-full pulse-dot"></span>
+                                </div>
+                                <span class="text-gray-600 text-xs" id="loading-text">${LOADING_TEXT}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatContainer.insertAdjacentHTML('beforeend', loadingHtml);
+            scrollToBottom();
+            
+            // 动态更新提示词
+            updateLoadingText();
+        }
+        
+        // 动态更新Loading文字（轮播效果）
+        function updateLoadingText() {
+            const loadingTextEl = document.getElementById('loading-text');
+            if (!loadingTextEl) return;
+            
+            let stepIndex = 0;
+            const intervalTime = DELAY_TIME_MS / selectedTemplate.steps.length;
+            
+            const textInterval = setInterval(() => {
+                stepIndex++;
+                if (stepIndex < selectedTemplate.steps.length && loadingTextEl) {
+                    loadingTextEl.textContent = selectedTemplate.steps[stepIndex];
+                } else {
+                    clearInterval(textInterval);
+                }
+            }, intervalTime);
+        }
+        
+        // 移除Loading消息
+        function removeLoadingMessage() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
+        }
+        
+        // 生成按钮
+        function createButton(text, onClick) {
+            const button = document.createElement('button');
+            button.className = 'w-full bg-white border border-primary/30 text-primary text-sm px-4 py-3 rounded-xl hover:bg-primary-light transition-colors duration-200 flex items-center justify-center space-x-2 shadow-sm mb-2 last:mb-0';
+            button.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>${text}</span>
+            `;
+            button.addEventListener('click', onClick);
+            return button;
+        }
+        
+        // 清空按钮区域
+        function clearButtons() {
+            buttonArea.innerHTML = '';
+        }
+        
+        // 显示结束按钮
+        function showEndButton() {
+            buttonArea.classList.add('hidden');
+            endArea.classList.remove('hidden');
+        }
+        
+        // 滚动到底部
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // 第一轮交互：显示【退款售后】按钮
+        function showFirstButton() {
+            clearButtons();
+            const btn = createButton('退款售后', () => {
+                handleFirstButtonClick();
+            });
+            buttonArea.appendChild(btn);
+        }
+        
+        // 处理第一轮按钮点击
+        function handleFirstButtonClick() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            // 添加用户消息
+            addUserMessage('退款售后');
+            
+            // 清空按钮
+            clearButtons();
+            
+            // AI秒回
+            setTimeout(() => {
+                addAIMessage('请选择您的具体退款原因：');
+                showSecondButtons();
+                isProcessing = false;
+            }, 300);
+        }
+        
+        // 第二轮交互：显示三个选项按钮
+        function showSecondButtons() {
+            const options = ['商品质量瑕疵', '七天无理由退货', '实物与描述严重不符'];
+            
+            options.forEach(option => {
+                const btn = createButton(option, () => {
+                    handleSecondButtonClick(option);
+                });
+                buttonArea.appendChild(btn);
+            });
+        }
+        
+        // 处理第二轮按钮点击
+        function handleSecondButtonClick(option) {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            // 添加用户消息
+            addUserMessage(option);
+            
+            // 清空按钮
+            clearButtons();
+            
+            // 显示Loading
+            setTimeout(() => {
+                addLoadingMessage();
+                
+                // 延迟后显示最终结果
+                setTimeout(() => {
+                    removeLoadingMessage();
+                    addAIMessage('您的诉求已收到，正在处理中，请稍后。');
+                    showEndButton();
+                    isProcessing = false;
+                }, DELAY_TIME_MS);
+            }, 300);
+        }
+        
+        // 结束按钮点击
+        endBtn.addEventListener('click', () => {
+            alert('感谢您的参与！即将跳转到问卷页面...');
+        });
+        
+        // 页面加载后初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                addAIMessage('您好，我是售后专属AI客服，请问有什么可以帮您？');
+                showFirstButton();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
