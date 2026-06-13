@@ -469,6 +469,10 @@
       action: "submit",
       participant_id: state.participant_id,
       delay_group: state.delay_group,
+      // System delay actually experienced on each AI reply — the manipulated
+      // independent variable (in seconds and milliseconds).
+      delay_seconds: state.delay_group != null ? parseFloat(state.delay_group) : null,
+      delay_ms: state.delay_ms,
       lang: state.lang,
       demographics: state.demographics,
       scales: payloadScales,
