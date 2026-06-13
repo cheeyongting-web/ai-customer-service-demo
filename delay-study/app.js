@@ -155,23 +155,11 @@
 
   function ensureAssigned() {
     if (state.participant_id) return;
-    if (!endpointReady()) { localAssign(); return; }
-    // Apps Script: simple POST (text/plain) avoids CORS preflight; the web app
-    // returns the balanced group. Fall back to local random on any failure.
-    fetch(CONFIG.DATA_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "assign" }),
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (!d || !d.delay_group) throw new Error("no group");
-        state.participant_id = d.participant_id;
-        state.delay_group = d.delay_group;
-        state.delay_ms = d.delay_ms != null ? d.delay_ms : Math.round(parseFloat(d.delay_group) * 1000);
-        state.assignSource = "server_balanced";
-      })
-      .catch(function () { localAssign(); });
+    // Airtable token is write-only, so balanced server-side assignment is not
+    // available. Each browser self-assigns a delay group via local random; the
+    // chosen group is stored with the response, so balance can be checked after
+    // the fact and adjusted if needed.
+    localAssign();
   }
 
   /* ============================================================
@@ -501,12 +489,7 @@
       return;
     }
 
-    fetch(CONFIG.DATA_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(body),
-    })
-      .then(function (r) { if (!r.ok) throw new Error("bad status"); return r.text(); })
+    submitRecord(body)
       .then(function () { renderThanks(); })
       .catch(function () {
         btn.disabled = false; btn.classList.remove("opacity-70", "cursor-wait");
