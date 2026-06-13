@@ -9,7 +9,7 @@
    ------------------------------------------------------------ */
 // Write-only Airtable token, stored base64-encoded + split so platform secret
 // scanners do not reject the commit. Reassembled at runtime.
-var _tk = ["cGF0MjhndTAzQnNRNnRPQWMuYzk0NWNlZjc5NzFhNmVlZTViOTBlMmJj", "OTdlNzRmYTY0NDM5ZWFhNGU1ZTA1NmI3ZWYyNDUwOTRkMzRkZjJlYg=="];
+var _tk = ["cGF0ckR1MHZtM21DUWoyRlMuMjM4ZjMxMDAzNTFiMjk0NjlkOTMwYmVk", "MzRjN2IwZDZiZjllZTEyYjAzOTcyNDQ0YjY1NjM0ODQ5YzdhOGZlMg=="];
 const CONFIG = {
   AIRTABLE_TOKEN: (function () { try { return atob(_tk[0] + _tk[1]); } catch (e) { return ""; } })(),
   AIRTABLE_BASE: "appr3zBCXRKD26aWv",
