@@ -18,23 +18,83 @@ const CONFIG = {
 function endpointReady() {
   return typeof CONFIG.AIRTABLE_TOKEN === "string" && CONFIG.AIRTABLE_TOKEN.indexOf("pat") === 0;
 }
-// Submit one completed response to Airtable. Full record is stored as JSON in
-// the "Notes" field; "Name" carries a quick-scan label. Returns a Promise.
-function submitRecord(body) {
-  var fields = {
+// Scale item codes written as their own structured columns.
+var SCALE_FIELD_KEYS = ["PE1", "PE2", "PE3", "MA1", "MA2", "RA1", "RA2", "WA1", "WA2", "SA1", "SA2", "MC1", "IMC1", "IMC1_pass"];
+
+// Flatten the full response into one Airtable record with an independent
+// column per question / metadata field. "Notes" still carries the complete
+// JSON as a backup, and "Name" is a quick-scan label.
+function buildFields(body) {
+  var d = body.demographics || {};
+  var s = body.scales || {};
+  var m = body.meta || {};
+  var f = {
     Name: (body.participant_id || "") + " | g=" + (body.delay_group || "") + "s",
     Notes: JSON.stringify(body),
+    // --- assignment / IV ---
+    participant_id: body.participant_id || "",
+    delay_group: body.delay_group != null ? String(body.delay_group) : "",
+    delay_seconds: body.delay_seconds,
+    delay_ms: body.delay_ms,
+    lang: body.lang || "",
+    // --- demographics ---
+    age: d.age || "",
+    gender: d.gender || "",
+    education: d.education || "",
+    ai_usage: d.ai_usage || "",
+    shopping: d.shopping || "",
+    // --- chat + estimate ---
+    chat_reason: s._chat_reason || "",
+    est_wait_seconds: s.est_wait_seconds,
+    // --- timing / meta ---
+    started_at: m.started_at,
+    chat_start_at: m.chat_start_at,
+    reply_request_at: m.reply_request_at,
+    decline_shown_at: m.decline_shown_at,
+    survey_start_at: m.survey_start_at,
+    submitted_at_client: m.submitted_at_client,
+    actual_delay_ms: m.actual_delay_ms,
+    total_duration_ms: m.total_duration_ms,
+    assign_source: m.assign_source || "",
+    item_order: m.item_order ? (Array.isArray(m.item_order) ? m.item_order.join("|") : String(m.item_order)) : "",
+    user_agent: m.user_agent || "",
   };
-  return fetch("https://api.airtable.com/v0/" + CONFIG.AIRTABLE_BASE + "/" + CONFIG.AIRTABLE_TABLE, {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + CONFIG.AIRTABLE_TOKEN,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ typecast: true, records: [{ fields: fields }] }),
-  }).then(function (r) {
-    if (!r.ok) throw new Error("airtable " + r.status);
-    return r.json();
+  // one column per Likert / attention-check item
+  SCALE_FIELD_KEYS.forEach(function (k) { if (s[k] != null) f[k] = s[k]; });
+  // drop null/undefined so Airtable doesn't reject empty values
+  Object.keys(f).forEach(function (k) { if (f[k] === null || f[k] === undefined) delete f[k]; });
+  return f;
+}
+
+// Submit one completed response to Airtable. Returns a Promise.
+// Primary write uses structured columns; if any column is missing
+// (UNKNOWN_FIELD_NAME / 422), it falls back to Name + Notes(JSON) so no
+// response is ever lost.
+function submitRecord(body) {
+  var url = "https://api.airtable.com/v0/" + CONFIG.AIRTABLE_BASE + "/" + CONFIG.AIRTABLE_TABLE;
+  function post(fields) {
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + CONFIG.AIRTABLE_TOKEN,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ typecast: true, records: [{ fields: fields }] }),
+    });
+  }
+  return post(buildFields(body)).then(function (r) {
+    if (r.ok) return r.json();
+    if (r.status === 422) {
+      // Structured columns not present yet — keep the data safe in Notes.
+      return post({
+        Name: (body.participant_id || "") + " | g=" + (body.delay_group || "") + "s",
+        Notes: JSON.stringify(body),
+      }).then(function (r2) {
+        if (!r2.ok) throw new Error("airtable " + r2.status);
+        return r2.json();
+      });
+    }
+    throw new Error("airtable " + r.status);
   });
 }
 
