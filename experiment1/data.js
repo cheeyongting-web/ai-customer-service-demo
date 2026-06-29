@@ -1,0 +1,265 @@
+/* ============================================================
+   Experiment 1 — Questionnaire data
+   2×2 between-subjects (response_speed × service_outcome)
+   ============================================================ */
+window.EXP1_DATA = (function () {
+  "use strict";
+
+  /* ---------- Airtable target (key supplied later) ---------- */
+  var AIRTABLE = {
+    baseId: "appr3zBCXRKD26aWv",
+    tableId: "tblcpobwfOm6NZL5o",
+    apiKey: "YOUR_AIRTABLE_API_KEY"
+  };
+
+  /* ---------- Four experimental cells ---------- */
+  // cell: A=immediate+reject, B=delay+reject, C=immediate+approve, D=delay+approve
+  var CONDITIONS = {
+    A: {
+      cell: "A",
+      speed_cond: "immediate",
+      outcome_cond: "reject",
+      delay_ms: 0,
+      reply:
+        "您好！感谢您联系我们。根据您的描述，由于色差属于正常显示误差范围，暂不符合退款条件，您的申请暂不受理。如有其他问题，欢迎继续咨询。"
+    },
+    B: {
+      cell: "B",
+      speed_cond: "delay",
+      outcome_cond: "reject",
+      delay_ms: 3500,
+      reply:
+        "您好！感谢您联系我们。根据您的描述，由于色差属于正常显示误差范围，暂不符合退款条件，您的申请暂不受理。如有其他问题，欢迎继续咨询。"
+    },
+    C: {
+      cell: "C",
+      speed_cond: "immediate",
+      outcome_cond: "approve",
+      delay_ms: 0,
+      reply:
+        "您好！感谢您联系我们。根据您的描述，色差问题属于商品质量问题，符合退款条件，您的退款申请已受理。后续退款将在3-5个工作日内原路返回，请注意查收。"
+    },
+    D: {
+      cell: "D",
+      speed_cond: "delay",
+      outcome_cond: "approve",
+      delay_ms: 3500,
+      reply:
+        "您好！感谢您联系我们。根据您的描述，色差问题属于商品质量问题，符合退款条件，您的退款申请已受理。后续退款将在3-5个工作日内原路返回，请注意查收。"
+    }
+  };
+
+  var USER_MESSAGE =
+    "你好，我想申请退款，我买的外套颜色和网页上展示的不一样。";
+
+  /* ---------- Likert scale anchors ---------- */
+  var LIKERT_LABELS = {
+    1: "非常不同意",
+    2: "不同意",
+    3: "有点不同意",
+    4: "中立",
+    5: "有点同意",
+    6: "同意",
+    7: "非常同意"
+  };
+
+  /* ---------- Survey modules ----------
+     Module list drives the progress bar; each non-trivial module
+     contains a list of items.
+     item.type:
+       - "likert7"           — 7-point Likert
+       - "single"            — single-choice
+       - "multi"             — multi-choice (max selectable specified)
+  ---------------------------------------- */
+  var MODULES = [
+    /* ---- 模块四：满意度 SA ---- */
+    {
+      id: "SA",
+      title: "模块 1 / 7 · 服务满意度",
+      hint: "请根据您刚才与 AI 客服的交互体验，回答以下问题。",
+      scaleLabels: LIKERT_LABELS,
+      items: [
+        { key: "SA1", type: "likert7", text: "我对这次 AI 客服的服务感到满意。" },
+        { key: "SA2", type: "likert7", text: "这次 AI 客服给我留下了良好的印象。" },
+        { key: "SA3", type: "likert7", text: "总体来看，这次 AI 客服的表现让我满意。" },
+        { key: "SA4", type: "likert7", text: "我愿意再次使用这个平台的 AI 客服。" }
+      ]
+    },
+
+    /* ---- 模块五：中介量表 ---- */
+    {
+      id: "PE",
+      title: "模块 2 / 7 · 感知服务努力",
+      hint: "关于这次 AI 客服的回复，请评价以下陈述。",
+      scaleLabels: LIKERT_LABELS,
+      items: [
+        { key: "PE1", type: "likert7", text: "AI 客服为处理我的诉求花费了心思。" },
+        { key: "PE2", type: "likert7", text: "AI 客服认真对待了我的请求。" },
+        { key: "PE3", type: "likert7", text: "AI 客服让我感觉其确实花了一定时间处理我的诉求。" },
+        { key: "PE4", type: "likert7", text: "AI 客服的回复让我感觉其回答是经过认真处理的。" }
+      ]
+    },
+    {
+      id: "DA",
+      title: "模块 3 / 7 · 服务态度感知",
+      hint: "关于这次 AI 客服的服务态度，请评价以下陈述。",
+      scaleLabels: LIKERT_LABELS,
+      items: [
+        { key: "DA1", type: "likert7", text: "我觉得 AI 客服并未认真回应我的诉求。" },
+        { key: "DA2", type: "likert7", text: "我觉得 AI 客服只是在应付我。" },
+        { key: "DA3", type: "likert7", text: "我感觉 AI 客服对我的问题并不上心。" },
+        { key: "DA4", type: "likert7", text: "我觉得这次处理方式较为敷衍。" }
+      ]
+    },
+    {
+      id: "PJ",
+      title: "模块 4 / 7 · 服务过程感受",
+      hint: "关于这次服务过程，请评价以下陈述。",
+      scaleLabels: LIKERT_LABELS,
+      items: [
+        { key: "PJ1", type: "likert7", text: "AI 客服在回复我之前，看起来认真考虑了我的情况。" },
+        { key: "PJ2", type: "likert7", text: "我感觉 AI 客服以公正的方式处理了我的诉求。" },
+        { key: "PJ3", type: "likert7", text: "AI 客服让我感觉我的诉求被认真考虑了。" }
+      ]
+    },
+
+    /* ---- 模块六：操纵检验 ---- */
+    {
+      id: "MC",
+      title: "模块 5 / 7 · 响应方式回顾",
+      hint: "关于 AI 客服的响应方式，请评价以下陈述。",
+      scaleLabels: LIKERT_LABELS,
+      items: [
+        { key: "MC1", type: "likert7", text: "这次 AI 客服几乎是立刻回复了我的问题。" },
+        { key: "MC2", type: "likert7", text: "这次 AI 客服的回复速度很快。" },
+        { key: "MC3", type: "likert7", text: "与一般在线客服相比，这次 AI 客服的回复出现得更慢一些。" },
+        {
+          key: "MC_result",
+          type: "single",
+          text:
+            "请问在刚才的对话中，AI 客服最终对您的退款申请做出了什么决定？",
+          options: [
+            "同意受理我的申请",
+            "拒绝/暂不受理我的申请",
+            "需要进一步核实",
+            "我不确定"
+          ]
+        }
+      ]
+    },
+
+    /* ---- 模块七：协变量 ---- */
+    {
+      id: "COV",
+      title: "模块 6 / 7 · 个人背景与经验",
+      hint: "以下问题用于研究分析，不会用于其他用途。",
+      scaleLabels: LIKERT_LABELS,
+      items: [
+        {
+          key: "EDU",
+          type: "single",
+          text: "您的最高学历是？",
+          options: ["高中及以下", "大专", "本科", "硕士", "博士及以上"]
+        },
+        { key: "EXP1", type: "likert7", text: "我经常使用 AI 客服解决问题。" },
+        { key: "EXP2", type: "likert7", text: "我对使用 AI 客服处理问题比较熟悉。" },
+        { key: "TRUST1", type: "likert7", text: "我总体上信任 AI 系统给出的建议。" },
+        { key: "TRUST2", type: "likert7", text: "我认为 AI 系统能够可靠地处理问题。" },
+        { key: "TRUST3", type: "likert7", text: "遇到问题时，我愿意依赖 AI 系统的判断。" },
+        {
+          key: "DEM1",
+          type: "single",
+          text: "您的性别是？",
+          options: ["男", "女", "其他", "不愿透露"]
+        },
+        {
+          key: "DEM2",
+          type: "single",
+          text: "您的年龄是？",
+          options: [
+            "18 岁以下",
+            "18-24 岁",
+            "25-34 岁",
+            "35-44 岁",
+            "45-54 岁",
+            "55 岁及以上"
+          ]
+        },
+        {
+          key: "DEM3",
+          type: "single",
+          text: "您每月网购的频率大约是多少？",
+          options: [
+            "几乎不网购",
+            "1-2 次",
+            "3-5 次",
+            "6-10 次",
+            "10 次以上"
+          ]
+        }
+      ]
+    },
+
+    /* ---- 模块九 + 十：质量核查 ---- */
+    {
+      id: "QC",
+      title: "模块 7 / 7 · 质量核查与补充探查",
+      hint: "最后几个问题，帮助我们提升问卷质量。",
+      scaleLabels: LIKERT_LABELS,
+      items: [
+        {
+          key: "IMC1",
+          type: "likert7",
+          text:
+            "为保证数据质量，请在本题选择「非常不同意」（即选 1）。我认为本问卷中的说明与我的实际情况完全相符。"
+        },
+        {
+          key: "QP1",
+          type: "single",
+          text: "在观看 AI 客服回复时，您觉得回复出现的速度怎么样？",
+          options: [
+            "非常快，几乎立刻出现",
+            "比较快",
+            "一般",
+            "有些慢",
+            "很慢，等待了明显一段时间"
+          ]
+        },
+        {
+          key: "QP2",
+          type: "multi",
+          maxSelect: 3,
+          text:
+            "在完成本次问卷的过程中，您主要注意到了哪些方面？（最多选 3 项）",
+          options: [
+            "AI 客服的回复内容",
+            "AI 客服的回复速度/时间",
+            "对话的整体界面风格",
+            "客服的服务态度",
+            "退款申请的最终结果",
+            "其他"
+          ]
+        },
+        {
+          key: "QP3",
+          type: "single",
+          text: "您猜测本研究主要想了解什么？",
+          options: [
+            "用户对 AI 客服服务内容的评价",
+            "用户对 AI 技术的整体态度",
+            "用户在网购退款场景中的心理体验",
+            "用户对 AI 客服交互方式的感受"
+          ]
+        }
+      ]
+    }
+  ];
+
+  return {
+    AIRTABLE: AIRTABLE,
+    CONDITIONS: CONDITIONS,
+    USER_MESSAGE: USER_MESSAGE,
+    MODULES: MODULES,
+    LIKERT_LABELS: LIKERT_LABELS
+  };
+})();
