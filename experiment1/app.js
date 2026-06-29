@@ -133,33 +133,32 @@
       card(
         stepBadge("参与须知") +
           '<h1 class="text-2xl sm:text-[26px] font-bold tracking-tight mb-3">参与本研究</h1>' +
-          '<p class="text-ink-soft leading-relaxed mb-3">感谢您参与本次研究！本研究由<strong class="text-ink">北京大学研究团队</strong>开展，旨在了解用户与 AI 客服交互的体验。</p>' +
+          '<p class="text-ink-soft leading-relaxed mb-3">感谢您参与本次研究！</p>' +
           '<p class="text-ink-soft leading-relaxed mb-3">参与本研究<strong class="text-ink">完全自愿</strong>，您的回答将被<strong class="text-ink">匿名处理</strong>，仅用于学术研究目的。</p>' +
           '<p class="text-ink-soft leading-relaxed mb-6">研究过程约需 <strong class="text-ink">5-8 分钟</strong>，您可以随时退出。</p>' +
-          '<div class="space-y-3 mb-6">' +
+          '<div class="space-y-3">' +
           consentOption("agree", "✅", "我已阅读以上说明，自愿参与本研究（继续）") +
           consentOption("decline", "❌", "我不愿意参与（结束）") +
-          "</div>" +
-          '<div class="flex flex-col sm:flex-row gap-3">' +
-          primaryBtn("consent-next", "继续", "arrow_forward") +
           "</div>" +
           errorBox("consent-err")
       );
     mount(html);
 
-    document.getElementById("consent-next").addEventListener("click", function () {
-      var chosen = document.querySelector('input[name="consent"]:checked');
-      if (!chosen) {
-        showError("consent-err", "请选择一项后再继续。");
-        return;
-      }
-      hideError("consent-err");
-      if (chosen.value === "decline") {
-        state.stage = "terminated";
-        renderTerminated();
-      } else {
-        renderScenario();
-      }
+    // Auto-advance on selection: no extra confirm click needed
+    var consentInputs = document.querySelectorAll('input[name="consent"]');
+    consentInputs.forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        hideError("consent-err");
+        // Small delay so user can see the selected state briefly
+        setTimeout(function () {
+          if (inp.value === "decline") {
+            state.stage = "terminated";
+            renderTerminated();
+          } else {
+            renderScenario();
+          }
+        }, 220);
+      });
     });
   }
 
@@ -214,8 +213,9 @@
     var html = card(
       stepBadge("AI 客服对话") +
         '<h2 class="text-2xl font-bold mb-1">与 AI 客服交流中</h2>' +
-        '<p class="text-ink-soft text-sm mb-5">请耐心查看对话，结束后将出现"继续"按钮。</p>' +
+        '<p class="text-ink-soft text-sm mb-5">请先点击下方您想发送的消息，再查看 AI 客服的回复。结束后将出现"继续"按钮。</p>' +
         '<div id="chat-area" class="space-y-4 min-h-[260px] bg-bg-soft/70 rounded-2xl p-4 sm:p-5"></div>' +
+        '<div id="chat-compose" class="mt-4"></div>' +
         '<div id="chat-cta" class="mt-6 flex justify-end opacity-0 pointer-events-none transition-opacity duration-300">' +
         primaryBtn("chat-next", "继续填写问卷", "arrow_forward") +
         "</div>"
@@ -223,14 +223,22 @@
     mount(html);
 
     var chatArea = document.getElementById("chat-area");
+    var composeArea = document.getElementById("chat-compose");
     var ctaWrap = document.getElementById("chat-cta");
 
-    // Step 1: user message appears
-    setTimeout(function () {
+    // Step 1: render the user message as a clickable "send" bubble in the compose area.
+    composeArea.innerHTML = pendingUserBubble(DATA.USER_MESSAGE);
+    var sendBtn = document.getElementById("send-user-msg");
+
+    sendBtn.addEventListener("click", function () {
+      // Prevent double click
+      sendBtn.disabled = true;
+      // Remove the compose-area pending bubble and add the actual user bubble to chat.
+      composeArea.innerHTML = "";
       chatArea.appendChild(userBubble(DATA.USER_MESSAGE));
       scrollChat();
 
-      // Step 2: typing indicator (only meaningful for delay; for immediate we still show a brief moment)
+      // Step 2: typing indicator (immediate condition shows briefly; delay condition waits 3500ms)
       setTimeout(function () {
         var typing = typingIndicator();
         chatArea.appendChild(typing);
@@ -253,13 +261,32 @@
             });
           }, 450);
         }, waitMs);
-      }, 500);
-    }, 300);
+      }, 350);
+    });
 
     function scrollChat() {
       chatArea.scrollTop = chatArea.scrollHeight;
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     }
+  }
+
+  function pendingUserBubble(text) {
+    // A clickable bubble shown right-aligned, looking like a message draft the user can send.
+    return (
+      '<div class="flex flex-col items-end gap-1.5">' +
+      '<button id="send-user-msg" type="button" ' +
+      'class="group max-w-[85%] text-left chat-bubble-user px-4 py-2.5 text-[15px] leading-relaxed cursor-pointer ' +
+      'hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 transition-all ' +
+      'shadow-soft hover:shadow-card disabled:opacity-60 disabled:cursor-not-allowed">' +
+      '<span class="block">' + esc(text) + '</span>' +
+      '<span class="mt-1.5 inline-flex items-center gap-1 text-[12px] opacity-90">' +
+      '<span class="material-symbols-rounded text-[14px] group-hover:translate-x-0.5 transition-transform">send</span>' +
+      '<span>点击发送</span>' +
+      '</span>' +
+      '</button>' +
+      '<span class="text-[11px] text-ink-soft pr-1">请点击上方气泡发送消息给 AI 客服</span>' +
+      '</div>'
+    );
   }
 
   function userBubble(text) {
@@ -323,15 +350,11 @@
     var nextIcon = isLast ? "send" : "arrow_forward";
 
     var html = card(
-      stepBadge(mod.title) +
-        '<h2 class="text-2xl font-bold mb-2">' +
-        esc(mod.title.split("·")[1] ? mod.title.split("·")[1].trim() : mod.title) +
-        "</h2>" +
-        (mod.hint
-          ? '<p class="text-ink-soft text-[14px] leading-relaxed mb-5">' +
-            esc(mod.hint) +
-            "</p>"
-          : "") +
+      (mod.hint
+        ? '<p class="text-ink-soft text-[14px] leading-relaxed mb-5">' +
+          esc(mod.hint) +
+          "</p>"
+        : "") +
         '<div class="space-y-6">' +
         itemsHtml +
         "</div>" +
