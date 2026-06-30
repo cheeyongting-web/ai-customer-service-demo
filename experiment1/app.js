@@ -595,20 +595,20 @@
       outcome_cond: cond.outcome_cond,
       cell: cond.cell,
 
-      SA1: Number(a.SA1),
-      SA2: Number(a.SA2),
-      SA3: Number(a.SA3),
-      SA4: Number(a.SA4),
-      PE3: Number(a.PE3),
-      DA2: Number(a.DA2),
-      PJ3: Number(a.PJ3),
-      MC1: Number(a.MC1),
+      SA1: String(a.SA1),
+      SA2: String(a.SA2),
+      SA3: String(a.SA3),
+      SA4: String(a.SA4),
+      PE3: String(a.PE3),
+      DA2: String(a.DA2),
+      PJ3: String(a.PJ3),
+      MC1: String(a.MC1),
       MC_result: a.MC_result,
-      mc_result_pass: mc_result_pass,
+      mc_result_pass: String(mc_result_pass),
 
       EDU: a.EDU,
-      EXP1: a.EXP1, EXP2: a.EXP2,
-      TRUST1: a.TRUST1, TRUST2: a.TRUST2, TRUST3: a.TRUST3,
+      EXP1: String(a.EXP1), EXP2: String(a.EXP2),
+      TRUST1: String(a.TRUST1), TRUST2: String(a.TRUST2), TRUST3: String(a.TRUST3),
       DEM1: a.DEM1, DEM2: a.DEM2, DEM3: a.DEM3
     };
   }
