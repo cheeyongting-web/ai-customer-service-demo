@@ -75,7 +75,7 @@ window.EXP1_DATA = (function () {
     /* ---- 模块四：满意度 SA ---- */
     {
       id: "SA",
-      title: "模块 1 / 7 · 服务满意度",
+      title: "",
       hint: "请根据您刚才与 AI 客服的交互体验，回答以下问题。",
       scaleLabels: LIKERT_LABELS,
       items: [
@@ -86,42 +86,16 @@ window.EXP1_DATA = (function () {
       ]
     },
 
-    /* ---- 模块五：中介量表 ---- */
+    /* ---- 合并中介 + 操纵检验 ---- */
     {
-      id: "PE",
-      title: "模块 2 / 7 · 感知服务努力",
+      id: "MEDI",
+      title: "",
       hint: "关于这次 AI 客服的回复，请评价以下陈述。",
       scaleLabels: LIKERT_LABELS,
       items: [
-        { key: "PE3", type: "likert7", text: "AI 客服让我感觉其确实花了一定时间处理我的诉求。" }
-      ]
-    },
-    {
-      id: "DA",
-      title: "模块 3 / 7 · 服务态度感知",
-      hint: "关于这次 AI 客服的服务态度，请评价以下陈述。",
-      scaleLabels: LIKERT_LABELS,
-      items: [
-        { key: "DA2", type: "likert7", text: "我觉得 AI 客服只是在应付我。" }
-      ]
-    },
-    {
-      id: "PJ",
-      title: "模块 4 / 7 · 服务过程感受",
-      hint: "关于这次服务过程，请评价以下陈述。",
-      scaleLabels: LIKERT_LABELS,
-      items: [
-        { key: "PJ3", type: "likert7", text: "AI 客服让我感觉我的诉求被认真考虑了。" }
-      ]
-    },
-
-    /* ---- 模块六：操纵检验 ---- */
-    {
-      id: "MC",
-      title: "模块 5 / 7 · 响应方式回顾",
-      hint: "关于 AI 客服的响应方式，请评价以下陈述。",
-      scaleLabels: LIKERT_LABELS,
-      items: [
+        { key: "PE3", type: "likert7", text: "AI 客服让我感觉其确实花了一定时间处理我的诉求。" },
+        { key: "DA2", type: "likert7", text: "我觉得 AI 客服只是在应付我。" },
+        { key: "PJ3", type: "likert7", text: "AI 客服让我感觉我的诉求被认真考虑了。" },
         { key: "MC1", type: "likert7", text: "这次 AI 客服几乎是立刻回复了我的问题。" },
         {
           key: "MC_result",
@@ -141,7 +115,7 @@ window.EXP1_DATA = (function () {
     /* ---- 模块七：协变量 ---- */
     {
       id: "COV",
-      title: "模块 6 / 7 · 个人背景与经验",
+      title: "",
       hint: "以下问题用于研究分析，不会用于其他用途。",
       scaleLabels: LIKERT_LABELS,
       items: [
