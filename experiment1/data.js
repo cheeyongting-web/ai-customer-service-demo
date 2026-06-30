@@ -9,7 +9,7 @@ window.EXP1_DATA = (function () {
   var AIRTABLE = {
     baseId: "appr3zBCXRKD26aWv",
     tableId: "tblcpobwfOm6NZL5o",
-    apiKey: "YOUR_AIRTABLE_API_KEY"
+    apiKey: ""
   };
 
   /* ---------- Four experimental cells ---------- */

@@ -649,13 +649,36 @@
       });
   }
 
+  function getAirtableApiKey() {
+    let apiKey = "";
+    const params = new URLSearchParams(window.location.search);
+    try {
+      apiKey = localStorage.getItem("airtable_key") || "";
+    } catch (err) {
+      void err;
+    }
+
+    if (!apiKey) {
+      apiKey = params.get("airtable_key") || "";
+      if (apiKey) {
+        try {
+          localStorage.setItem("airtable_key", apiKey);
+        } catch (err) {
+          void err;
+        }
+      }
+    }
+
+    return apiKey || DATA.AIRTABLE.apiKey || "";
+  }
+
   function submitToAirtable(fields) {
     var url =
       "https://api.airtable.com/v0/" +
       DATA.AIRTABLE.baseId +
       "/" +
       DATA.AIRTABLE.tableId;
-    var apiKey = DATA.AIRTABLE.apiKey;
+    const apiKey = getAirtableApiKey();
 
     // Filter out undefined values
     var clean = {};
@@ -667,11 +690,10 @@
 
     if (!apiKey || apiKey === "YOUR_AIRTABLE_API_KEY") {
       console.warn(
-        "[Experiment1] Airtable API key not configured — payload printed only.",
+        "[Experiment1] Airtable API key not configured — storing payload offline.",
         clean
       );
-      // Treat as success to allow flow validation when key is missing
-      return Promise.resolve({ ok: true, simulated: true });
+      return Promise.reject(new Error("Airtable API key not configured"));
     }
 
     return fetch(url, {

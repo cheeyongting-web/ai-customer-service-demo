@@ -197,6 +197,24 @@
     </footer>
   </main>
 
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var airtableKey = params.get("airtable_key");
+      if (!airtableKey) return;
+
+      try {
+        localStorage.setItem("airtable_key", airtableKey);
+      } catch (e) {}
+
+      params.delete("airtable_key");
+      var cleanUrl =
+        window.location.pathname +
+        (params.toString() ? "?" + params.toString() : "") +
+        window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+    })();
+  </script>
   <script src="./data.js"></script>
   <script src="./app.js"></script>
 </body>
