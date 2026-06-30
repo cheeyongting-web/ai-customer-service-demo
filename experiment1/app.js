@@ -588,7 +588,20 @@
         : "同意受理我的申请";
     var mc_result_pass = a.MC_result === correctOutcome ? 1 : 0;
 
+    // Auto-generate Name: [cell]_[first8 of participant_id]_[YYYYMMDDTHHmm]
+    var now = new Date();
+    var ts =
+      now.getFullYear().toString() +
+      String(now.getMonth() + 1).padStart(2, "0") +
+      String(now.getDate()).padStart(2, "0") +
+      "T" +
+      String(now.getHours()).padStart(2, "0") +
+      String(now.getMinutes()).padStart(2, "0");
+    var shortId = state.participant_id.replace(/-/g, "").slice(0, 8);
+    var recordName = cond.cell + "_" + shortId + "_" + ts;
+
     return {
+      Name: recordName,
       participant_id: state.participant_id,
       timestamp: new Date().toISOString(),
       speed_cond: cond.speed_cond,
