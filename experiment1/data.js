@@ -93,10 +93,7 @@ window.EXP1_DATA = (function () {
       hint: "关于这次 AI 客服的回复，请评价以下陈述。",
       scaleLabels: LIKERT_LABELS,
       items: [
-        { key: "PE1", type: "likert7", text: "AI 客服为处理我的诉求花费了心思。" },
-        { key: "PE2", type: "likert7", text: "AI 客服认真对待了我的请求。" },
-        { key: "PE3", type: "likert7", text: "AI 客服让我感觉其确实花了一定时间处理我的诉求。" },
-        { key: "PE4", type: "likert7", text: "AI 客服的回复让我感觉其回答是经过认真处理的。" }
+        { key: "PE3", type: "likert7", text: "AI 客服让我感觉其确实花了一定时间处理我的诉求。" }
       ]
     },
     {
@@ -105,10 +102,7 @@ window.EXP1_DATA = (function () {
       hint: "关于这次 AI 客服的服务态度，请评价以下陈述。",
       scaleLabels: LIKERT_LABELS,
       items: [
-        { key: "DA1", type: "likert7", text: "我觉得 AI 客服并未认真回应我的诉求。" },
-        { key: "DA2", type: "likert7", text: "我觉得 AI 客服只是在应付我。" },
-        { key: "DA3", type: "likert7", text: "我感觉 AI 客服对我的问题并不上心。" },
-        { key: "DA4", type: "likert7", text: "我觉得这次处理方式较为敷衍。" }
+        { key: "DA2", type: "likert7", text: "我觉得 AI 客服只是在应付我。" }
       ]
     },
     {
@@ -117,8 +111,6 @@ window.EXP1_DATA = (function () {
       hint: "关于这次服务过程，请评价以下陈述。",
       scaleLabels: LIKERT_LABELS,
       items: [
-        { key: "PJ1", type: "likert7", text: "AI 客服在回复我之前，看起来认真考虑了我的情况。" },
-        { key: "PJ2", type: "likert7", text: "我感觉 AI 客服以公正的方式处理了我的诉求。" },
         { key: "PJ3", type: "likert7", text: "AI 客服让我感觉我的诉求被认真考虑了。" }
       ]
     },
@@ -131,8 +123,6 @@ window.EXP1_DATA = (function () {
       scaleLabels: LIKERT_LABELS,
       items: [
         { key: "MC1", type: "likert7", text: "这次 AI 客服几乎是立刻回复了我的问题。" },
-        { key: "MC2", type: "likert7", text: "这次 AI 客服的回复速度很快。" },
-        { key: "MC3", type: "likert7", text: "与一般在线客服相比，这次 AI 客服的回复出现得更慢一些。" },
         {
           key: "MC_result",
           type: "single",
@@ -200,59 +190,6 @@ window.EXP1_DATA = (function () {
       ]
     },
 
-    /* ---- 模块九 + 十：质量核查 ---- */
-    {
-      id: "QC",
-      title: "模块 7 / 7 · 质量核查与补充探查",
-      hint: "最后几个问题，帮助我们提升问卷质量。",
-      scaleLabels: LIKERT_LABELS,
-      items: [
-        {
-          key: "IMC1",
-          type: "likert7",
-          text:
-            "为保证数据质量，请在本题选择「非常不同意」（即选 1）。我认为本问卷中的说明与我的实际情况完全相符。"
-        },
-        {
-          key: "QP1",
-          type: "single",
-          text: "在观看 AI 客服回复时，您觉得回复出现的速度怎么样？",
-          options: [
-            "非常快，几乎立刻出现",
-            "比较快",
-            "一般",
-            "有些慢",
-            "很慢，等待了明显一段时间"
-          ]
-        },
-        {
-          key: "QP2",
-          type: "multi",
-          maxSelect: 3,
-          text:
-            "在完成本次问卷的过程中，您主要注意到了哪些方面？（最多选 3 项）",
-          options: [
-            "AI 客服的回复内容",
-            "AI 客服的回复速度/时间",
-            "对话的整体界面风格",
-            "客服的服务态度",
-            "退款申请的最终结果",
-            "其他"
-          ]
-        },
-        {
-          key: "QP3",
-          type: "single",
-          text: "您猜测本研究主要想了解什么？",
-          options: [
-            "用户对 AI 客服服务内容的评价",
-            "用户对 AI 技术的整体态度",
-            "用户在网购退款场景中的心理体验",
-            "用户对 AI 客服交互方式的感受"
-          ]
-        }
-      ]
-    }
   ];
 
   return {

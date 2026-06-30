@@ -581,15 +581,12 @@
     var a = state.answers;
     var cond = state.condition;
 
-    // Manipulation check pass flags
+    // Manipulation check pass flag
     var correctOutcome =
       cond.outcome_cond === "reject"
         ? "拒绝/暂不受理我的申请"
         : "同意受理我的申请";
     var mc_result_pass = a.MC_result === correctOutcome ? 1 : 0;
-    var imc_pass = Number(a.IMC1) === 1 ? 1 : 0;
-
-    var qp2 = Array.isArray(a.QP2) ? a.QP2.join(",") : "";
 
     return {
       participant_id: state.participant_id,
@@ -599,24 +596,17 @@
       cell: cond.cell,
 
       SA1: a.SA1, SA2: a.SA2, SA3: a.SA3, SA4: a.SA4,
-      PE1: a.PE1, PE2: a.PE2, PE3: a.PE3, PE4: a.PE4,
-      DA1: a.DA1, DA2: a.DA2, DA3: a.DA3, DA4: a.DA4,
-      PJ1: a.PJ1, PJ2: a.PJ2, PJ3: a.PJ3,
-      MC1: a.MC1, MC2: a.MC2, MC3: a.MC3,
+      PE3: a.PE3,
+      DA2: a.DA2,
+      PJ3: a.PJ3,
+      MC1: a.MC1,
       MC_result: a.MC_result,
+      mc_result_pass: mc_result_pass,
 
       EDU: a.EDU,
       EXP1: a.EXP1, EXP2: a.EXP2,
       TRUST1: a.TRUST1, TRUST2: a.TRUST2, TRUST3: a.TRUST3,
-      DEM1: a.DEM1, DEM2: a.DEM2, DEM3: a.DEM3,
-
-      IMC1: a.IMC1,
-      imc_pass: imc_pass,
-      mc_result_pass: mc_result_pass,
-
-      QP1: a.QP1,
-      QP2: qp2,
-      QP3: a.QP3
+      DEM1: a.DEM1, DEM2: a.DEM2, DEM3: a.DEM3
     };
   }
 
