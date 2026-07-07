@@ -8,8 +8,8 @@ window.EXP2_DATA = (function () {
 
   /* ---------- Airtable target ---------- */
   var AIRTABLE = {
-    baseId: "appMYMfJHUtPztBgD",
-    tableName: "Experiment2",
+    baseId: "appvjPaL3Kcyjz1gY",
+    tableId: "tblcpobwfOm6NZL5o",
     apiKey: ""
   };
 

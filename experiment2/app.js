@@ -680,7 +680,7 @@
       "https://api.airtable.com/v0/" +
       DATA.AIRTABLE.baseId +
       "/" +
-      encodeURIComponent(DATA.AIRTABLE.tableName);
+      DATA.AIRTABLE.tableId;
     var apiKey = getAirtableApiKey();
 
     // Filter out undefined/null/empty values
