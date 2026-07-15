@@ -14,9 +14,9 @@ window.EXP3_DATA = (function () {
      The values below are placeholders; the researcher can either
      (a) fill them in here later, or (b) inject them via URL. */
   var AIRTABLE = {
-    baseId: "",        // e.g. "appXXXXXXXXXXXXXX"  ← 待填
-    tableId: "",       // e.g. "tblXXXXXXXXXXXXXX"  ← 待填
-    apiKey: ""         // 请通过 URL 参数 airtable_key 传入，勿硬编码 PAT
+    baseId: "appKOOjwtR4oDqD0b",        // e.g. "appXXXXXXXXXXXXXX"  ← 待填
+    tableId: "tblcpobwfOm6NZL5o",       // e.g. "tblXXXXXXXXXXXXXX"  ← 待填
+    apiKey: ""                         // 请通过 URL 参数 airtable_key 传入，勿硬编码 PAT
   };
 
   /* ---------- Fixed experimental constants ---------- */
